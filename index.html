@@ -1,503 +1,39 @@
 <!DOCTYPE html>
-<html lang="zh" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
-  <!-- Open Graph meta tags -->
+
+  <!-- Primary Meta -->
+  <title>Pendle YT Timing Tool</title>
+  <meta name="description" content="A powerful Pendle YT tool to track and analyze YT prices and points.">
+
+  <!-- Open Graph -->
   <meta property="og:title" content="Pendle YT Tool" />
   <meta property="og:description" content="A powerful Pendle YT tool to track and analyze YT prices and points." />
   <meta property="og:image" content="https://quantsheep.com/images/og-image.jpg" />
   <meta property="og:url" content="https://quantsheep.com" />
   <meta property="og:type" content="website" />
 
-  <!-- Twitter Card meta tags -->
+  <!-- Twitter Card -->
   <meta name="twitter:title" content="Pendle YT Tool" />
   <meta name="twitter:description" content="A powerful Pendle YT tool to track and analyze YT prices and points." />
   <meta name="twitter:image" content="https://quantsheep.com/images/twitter-card.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <!-- Favicon -->
-  <link rel="icon" href="https://quantsheep.com/images/favicon.ico" />
-  
-  <title>Pendle YT Timing Tool</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <style>
-    :root {
-      --bg: #0b0f16; --fg: #e6edf3; --muted: #9fb0c2;
-      --card: #0e1423aa; --border: #263143; --primary: #6aa5ff;
-      --primary-ghost: #1a2741; --danger: #f85149; --ok: #2ea043;
-      --shadow: 0 10px 30px rgba(0, 0, 0, .35);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
-    /* 浅色主题覆盖 */
-    [data-theme="light"] {
-      --bg: #f6f8fb; --fg: #0b1220; --muted: #536179;
-      --card: #ffffffcc; --border: #d9e1ee; --primary: #2b6fff;
-      --primary-ghost: #e6eeff; --danger: #c61e1e; --ok: #1a7f2e;
-      --shadow: 0 10px 30px rgba(0, 0, 0, .08);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      height: 100%;
-    }
-
-    body {
-      margin: 0;
-      background: 
-        radial-gradient(1200px 600px at 10% -10%, #12233b 0%, transparent 60%),
-        radial-gradient(1000px 600px at 100% 0%, #0f1e33 0%, transparent 50%),
-        linear-gradient(180deg, #080c14, var(--bg));
-      color: var(--fg);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, "Helvetica Neue", Arial;
-      letter-spacing: .1px;
-      transition: background .25s ease, color .25s ease;
-    }
-
-    [data-theme="light"] body {
-      background: 
-        radial-gradient(1200px 600px at 10% -10%, #e6eeff 0%, transparent 60%),
-        radial-gradient(1000px 600px at 100% 0%, #f1f5ff 0%, transparent 50%),
-        linear-gradient(180deg, #ffffff, var(--bg));
-    }
-
-    .wrap {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(10px);
-      background: linear-gradient(180deg, var(--bg), transparent);
-      padding: 12px 0 10px;
-      margin-bottom: 14px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .head-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      background: radial-gradient(60% 60% at 30% 30%, #79a9ff, #325fb3);
-      box-shadow: 0 6px 18px rgba(50, 95, 179, .45), inset 0 0 10px #91bbff55;
-    }
-
-    h1 {
-      font-size: 18px;
-      margin: 0;
-      font-weight: 800;
-      letter-spacing: .3px;
-    }
-
-    .badges {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      font-size: 12px;
-      padding: 4px 10px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      color: var(--muted);
-      background: linear-gradient(180deg, #0f1830, #0d162a);
-    }
-
-    [data-theme="light"] .badge {
-      background: #f7faff;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .btn {
-      appearance: none;
-      border: 1px solid var(--border);
-      color: var(--fg);
-      background: var(--primary-ghost);
-      padding: 10px 14px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: .15s;
-      box-shadow: var(--shadow);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .btn:hover {
-      filter: brightness(1.05);
-    }
-
-    .btn.primary {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
-    }
-
-    .btn.ghost {
-      background: #0f172a;
-    }
-
-    [data-theme="light"] .btn.ghost {
-      background: #fff;
-    }
-
-    .btn:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
-
-    .select, .input {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #0e1526;
-      color: var(--fg);
-      font-size: 14px;
-      font-family: var(--mono);
-      transition: .15s border, .15s transform;
-    }
-
-    [data-theme="light"] .select, [data-theme="light"] .input {
-      background: #fff;
-    }
-
-    .select:focus, .input:focus {
-      outline: none;
-      border-color: var(--primary);
-      transform: translateY(-1px);
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow);
-      transition: background .25s ease, border-color .25s ease;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 12px;
-    }
-
-    .col-3 {
-      grid-column: span 3;
-    }
-
-    .col-4 {
-      grid-column: span 4;
-    }
-
-    .col-5 {
-      grid-column: span 5;
-    }
-
-    .col-6 {
-      grid-column: span 6;
-    }
-
-    .col-12 {
-      grid-column: span 12;
-    }
-
-    /* 改进的标签样式，支持问号图标 */
-    .label-wrapper {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      margin: 0 0 6px 4px;
-    }
-
-    .label {
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0;
-    }
-
-    /* 问号图标样式 */
-    .help-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 14px;
-      height: 14px;
-      margin-left: 4px;
-      background: var(--primary);
-      color: #fff;
-      border-radius: 50%;
-      font-size: 10px;
-      font-weight: bold;
-      cursor: help;
-      position: relative;
-      transition: all .2s ease;
-      line-height: 1;
-    }
-
-    .help-icon:hover {
-      transform: scale(1.1);
-      background: var(--primary);
-      filter: brightness(1.1);
-    }
-
-    /* 提示框样式 */
-    .help-icon .tooltip {
-      visibility: hidden;
-      opacity: 0;
-      position: absolute;
-      top: calc(100% + 8px); /* Adjust tooltip position below the icon */
-      left: 50%;
-      transform: translateX(-50%);
-      width: max-content;
-      max-width: 250px;
-      padding: 8px 12px;
-      background: #1a1f2e;
-      color: #e6edf3;
-      font-size: 11px;
-      font-weight: normal;
-      line-height: 1.4;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
-      z-index: 10002; /* Ensure tooltips appear above everything else */
-      transition: opacity .2s ease, visibility .2s ease;
-      pointer-events: none;
-    }
-
-    [data-theme="light"] .help-icon .tooltip {
-      background: #2c3e50;
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
-    }
-
-    .help-icon .tooltip::after {
-      content: '';
-      position: absolute;
-      top: -5px; /* Adjust the triangle position */
-      left: 50%;
-      transform: translateX(-50%);
-      border: 5px solid transparent;
-      border-bottom-color: #1a1f2e;
-    }
-
-    [data-theme="light"] .help-icon .tooltip::after {
-      border-bottom-color: #2c3e50;
-    }
-
-    .help-icon:hover .tooltip {
-      visibility: visible;
-      opacity: 1;
-    }
-
-
-    .pill {
-      padding: 6px 10px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #0e1526;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    [data-theme="light"] .pill {
-      background: #fff;
-    }
-
-    .kvs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .kv {
-      background: #0f162a;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-    }
-
-    [data-theme="light"] .kv {
-      background: #fff;
-    }
-
-    .kv .k {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .kv .v {
-      font-size: 22px;
-      font-weight: 900;
-    }
-
-    .ok {
-      color: #2ea043;
-    }
-
-    .err {
-      color: #c61e1e;
-      white-space: pre-wrap;
-      font-family: var(--mono);
-      font-size: 12px;
-    }
-
-    .row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .loading {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--muted);
-    }
-
-    .spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .foot {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .mono {
-      font-family: var(--mono);
-    }
-
-    .fade-in {
-      animation: fade .3s ease;
-    }
-
-    @keyframes fade {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-      to {
-        opacity: 1;
-        transform: none;
-      }
-    }
-
-    #chart {
-      width: 100%;
-      height: 450px;
-      max-width: 100%;
-    }
-
-    /* 适配移动端 */
-    @media (max-width: 768px) {
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .col-3, .col-4, .col-5, .col-6, .col-12 {
-        grid-column: span 2;
-      }
-
-      .head-inner {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .brand {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .btn {
-        width: 100%;
-        padding: 12px;
-      }
-
-      .input, .select {
-        width: 100%;
-        padding: 12px;
-      }
-
-      #chart {
-        height: 400px;
-      }
-
-      .pill {
-        font-size: 10px;
-      }
-
-      .label {
-        font-size: 10px;
-      }
-
-      h1 {
-        font-size: 16px;
-      }
-
-      .help-icon .tooltip {
-        max-width: 200px;
-        left: auto;
-        right: -10px;
-        transform: none;
-      }
-
-      .help-icon .tooltip::after {
-        left: auto;
-        right: 15px;
-        transform: none;
-      }
-    }
-  </style>
+  <!-- Icons -->
+  <link rel="icon" href="/images/favicon.ico" />
+
+  <!-- Perf -->
+  <link rel="preconnect" href="https://api-v2.pendle.finance" crossorigin>
+
+  <!-- Styles -->
+  <link rel="preload" href="/assets/app.css" as="style">
+  <link rel="stylesheet" href="/assets/app.css">
+
+  <!-- Scripts (self-hosted) -->
+  <script src="/vendor/plotly-2.35.2.min.js" defer></script>
+  <script src="/assets/app.js" defer></script>
 </head>
 <body>
   <div class="wrap">
@@ -506,27 +42,29 @@
         <div class="brand">
           <div class="logo"></div>
           <div>
-            <h1 id="title">Pendle YT 工具 · 网页版</h1>
+            <h1 id="title">Pendle YT Tool · Web</h1>
             <div class="badges">
               <span class="badge" id="badge-plotly">Plotly</span>
-              <span class="badge" id="badge-standalone">无后端 · 直连 API</span>
+              <span class="badge" id="badge-standalone">No Backend · Direct API Connection</span>
             </div>
           </div>
         </div>
         <div class="toolbar">
-          <!-- 作者 X -->
-          <a class="btn ghost" id="xLink" href="https://x.com/quant_sheep" target="_blank" rel="noopener noreferrer" aria-label="Author on X">
+          <a class="btn ghost" id="repoLink"
+             href="https://github.com/labrinyang/Pendle-YT-Timing-Tool"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="Open GitHub repository"
+             title="Open GitHub repository">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M18.244 2H21l-6.55 7.48L22.5 22h-6.93l-5.43-7.11L3.6 22H1l7.07-8.08L1.8 2h6.93l4.9 6.41L18.244 2Zm-2.418 18h1.93L7.27 4H5.34l10.486 16Z"/>
+              <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.41 7.86 10.94.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.54-3.87-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.73.08-.72.08-.72 1.17.08 1.79 1.21 1.79 1.21 1.04 1.78 2.72 1.27 3.38.97.1-.75.41-1.27.75-1.56-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.45.11-3.02 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.57.23 2.73.11 3.02.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.4-5.25 5.68.42.36.8 1.08.8 2.19v3.25c0 .31.21.66.8.55A10.5 10.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/>
             </svg>
-            <span data-i18n="author">作者</span>
+            <span>Pendle-YT-Timing-Tool</span>
           </a>
-          <select id="lang" class="select" style="width:auto;">
-            <option value="zh" selected>中文</option>
-            <option value="en">English</option>
-          </select>
-          <button id="toggleTheme" class="btn ghost">🌗 <span data-i18n="toggleTheme">切换深/浅色</span></button>
-          <button id="run" class="btn primary">⚡ <span data-i18n="run">运行</span></button>
+          <button id="langToggle" class="btn ghost" aria-label="Switch language" title="Switch language">
+            🌐 <span id="langLabel">EN</span>
+          </button>
+          <button id="toggleTheme" class="btn ghost">🌗 <span data-i18n="toggleTheme">Dark/Light Theme</span></button>
+          <button id="run" class="btn primary">⚡ <span data-i18n="run">Run</span></button>
         </div>
       </div>
     </header>
@@ -538,7 +76,7 @@
           <div class="label-wrapper">
             <label class="label" data-i18n="network">Network</label>
             <span class="help-icon">?
-              <span class="tooltip" data-i18n="networkHelp">选择市场所在区块链</span>
+              <span class="tooltip" data-i18n="networkHelp">Select the blockchain of the market</span>
             </span>
           </div>
           <select id="network" class="select">
@@ -554,7 +92,7 @@
           <div class="label-wrapper">
             <label class="label" data-i18n="market">Market Contract</label>
             <span class="help-icon">?
-              <span class="tooltip" data-i18n="marketHelp">Pendle Market 的合约地址，可从 Pendle 官网获取</span>
+              <span class="tooltip" data-i18n="marketHelp">Contract address of the Pendle Market, available from the Specs of each market</span>
             </span>
           </div>
           <input id="market_contract" class="input" value="0x45f163e583d34b8e276445dd3da9ae077d137d72" />
@@ -563,7 +101,7 @@
           <div class="label-wrapper">
             <label class="label" data-i18n="yt">YT Contract</label>
             <span class="help-icon">?
-              <span class="tooltip" data-i18n="ytHelp">YT Token 的合约地址，代表到期前的收益权</span>
+              <span class="tooltip" data-i18n="ytHelp">Contract address of the YT Token, available from the Specs of each market</span>
             </span>
           </div>
           <input id="yt_contract" class="input" value="0xff1e55f96fa77bcfb5d40f6641e0acabd47ac34f" />
@@ -572,7 +110,7 @@
           <div class="label-wrapper">
             <label class="label" data-i18n="underlying">Underlying Amount</label>
             <span class="help-icon">?
-              <span class="tooltip" data-i18n="underlyingHelp">您计划投入的基础资产数量（如 kHYPE、USDe 等）</span>
+              <span class="tooltip" data-i18n="underlyingHelp">The amount of the underlying asset you plan to invest (e.g., kHYPE, USDe, etc.)</span>
             </span>
           </div>
           <input id="underlying_amount" class="input" type="number" value="1500" />
@@ -581,7 +119,7 @@
           <div class="label-wrapper">
             <label class="label" data-i18n="pointsPerDay">Points / Day / Underlying</label>
             <span class="help-icon">?
-              <span class="tooltip" data-i18n="pointsHelp">每个基础资产每天可获得的积分数量，请参考项目方文档</span>
+              <span class="tooltip" data-i18n="pointsHelp">The number of points earned per underlying asset per day. Please refer to the project's documentation (e.g., Falcon provides 1 point per sUSDe per day)</span>
             </span>
           </div>
           <input id="points_per_day" class="input" type="number" step="0.0001" value="1" />
@@ -590,364 +128,61 @@
           <div class="label-wrapper">
             <label class="label" data-i18n="multiplier">Pendle Multiplier</label>
             <span class="help-icon">?
-              <span class="tooltip" data-i18n="multiplierHelp">Pendle 的积分倍数加成，通常在活动期间会有额外加成</span>
+              <span class="tooltip" data-i18n="multiplierHelp">Pendle’s points multiplier bonus, typically with additional boosts during special events (e.g., Falcon sUSDf has a points multiplier of 36)</span>
             </span>
           </div>
           <input id="multiplier_inp" class="input" type="number" value="36" />
         </div>
-        <div class="col-12" style="display:flex;gap:10px;align-items:center;margin-top:6px;">
-          <span id="status" class="loading" style="display:none;"><span class="spinner"></span><span id="loadingText">拉取与计算中…</span></span>
+
+        <div class="col-12">
+          <span id="status" class="loading hidden">
+            <span class="spinner"></span>
+            <span id="loadingText">Fetching and calculating…</span>
+          </span>
         </div>
       </div>
     </div>
 
     <!-- 概览 -->
-    <div id="meta" class="card fade-in" style="display:none;">
+    <div id="meta" class="card fade-in hidden">
       <div class="row">
-        <div class="row" style="gap:8px">
-          <span class="pill"><span data-i18n="symbol">Symbol</span>: <span id="symbol" class="mono"></span></span> 
-          <span class="pill"><span data-i18n="maturity">Maturity (UTC)</span>: <span id="maturity" class="mono"></span></span> 
-          <span class="pill"><span data-i18n="wImplied">Weighted Implied APY</span>: <span id="wImplied" class="mono ok"></span></span> 
-        </div> 
+        <div class="row gap-8">
+          <span class="pill"><span data-i18n="symbol">Symbol</span>: <span id="symbol" class="mono"></span></span>
+          <span class="pill"><span data-i18n="maturity">Maturity (UTC)</span>: <span id="maturity" class="mono"></span></span>
+          <span class="pill"><span data-i18n="wImplied">Weighted Implied APY</span>: <span id="wImplied" class="mono ok"></span></span>
+        </div>
         <span class="pill">(<span data-i18n="network">Network</span>: <span id="netpill" class="mono"></span>)</span>
       </div>
-      <div class="kvs" style="margin-top:12px"> 
-        <div class="kv"> 
-          <div class="k" data-i18n="txnUnique">Transactions (unique)</div> 
-          <div id="kv_txn" class="v">-</div> 
-        </div> 
-        <div class="kv"> 
-          <div class="k" data-i18n="weightedImpliedKV">Weighted Implied APY</div> 
-          <div id="kv_wimplied" class="v">-</div> 
-        </div> 
-        <div class="kv"> 
-          <div class="k" data-i18n="buyNowPoints">Points (buy now)</div> 
-          <div id="kv_now" class="v">-</div> 
-        </div> 
-      </div> 
+      <div class="kvs mt-12">
+        <div class="kv">
+          <div class="k" data-i18n="txnUnique">Transactions (unique)</div>
+          <div id="kv_txn" class="v">-</div>
+        </div>
+        <div class="kv">
+          <div class="k" data-i18n="weightedImpliedKV">Weighted Implied APY (Volume-weighted)</div>
+          <div id="kv_wimplied" class="v">-</div>
+        </div>
+        <div class="kv">
+          <div class="k" data-i18n="buyNowPoints">Points (Points available now upon purchase)</div>
+          <div id="kv_now" class="v">-</div>
+        </div>
+      </div>
     </div>
 
     <!-- 图表 -->
-    <div id="chartCard" class="card fade-in" style="display:none;">
+    <div id="chartCard" class="card fade-in hidden">
       <div id="chart"></div>
-      <div class="foot" style="margin-top:8px;" id="chartFoot">在 yt 价格低于公平价值曲线时购买以最大化积分</div>
+      <div class="foot mt-8" id="chartFoot">在 yt 价格低于公平价值曲线时购买以最大化积分</div>
     </div>
 
     <!-- 错误 -->
-    <div id="error" class="card fade-in" style="display:none;">
+    <div id="error" class="card fade-in hidden">
       <div class="err" id="errmsg"></div>
     </div>
 
-    <div class="foot" style="margin-top: 14px;" id="dataSrc">
-      数据来源：<span class="mono">api-v2.pendle.finance</span> · 仅供研究参考
+    <div class="foot mt-14" id="dataSrc">
+      Data source: <span class="mono">api-v2.pendle.finance</span> · For research only
     </div>
   </div>
-
-<script>
-'use strict';
-
-  // ========= i18n =========
-  const I18N = {
-    zh: {
-      title: "Pendle YT 择时工具 · 网页版",
-      plotly: "Plotly",
-      standalone: "安全无后端 · 直连 API",
-      author: "作者",
-      toggleTheme: "深/浅色",
-      run: "运行",
-      network: "区块链网络",
-      market: "Market Contract",
-      yt: "YT Contract",
-      underlying: "底层资产数量",
-      pointsPerDay: "每个基础资产每天可获得的积分数量",
-      multiplier: "Pendle平台的积分倍数",
-      loading: "拉取与计算中…",
-      symbol: "所查询市场",
-      maturity: "到期时间 (UTC)",
-      wImplied: "加权后 Implied APY",
-      txnUnique: "交易笔数 (unique)",
-      weightedImpliedKV: "加权 Implied APY（交易量加权）",
-      buyNowPoints: "Points（现在买入可获得的积分数量）",
-      networkHelp: "选择市场所在区块链",
-      marketHelp: "Pendle Market 的合约地址，可从 Pendle 每个市场的Specs中获取",
-      ytHelp: "YT Token 的合约地址，可从 Pendle 每个市场的Specs中获取",
-      underlyingHelp: "您计划投入的基础资产数量（如 kHYPE、USDe 等）",
-      pointsHelp: "每个基础资产每天可获得的积分数量，请参考项目方文档（如Falcon是每个sUSDe每天 1 积分）",
-      multiplierHelp: "Pendle 的积分倍数加成，通常在积分活动期间Pendle会有额外加成（如Falcon sUSDf 积分倍数36）",
-      chartTitle: (s, n, u) => `${s} 在 ${n} [${u} 底层资产]`,
-      chartY1: "YT价格", 
-      chartY2: "该时刻购买，到期获得的积分数量", 
-    },
-    en: {
-      title: "Pendle YT Timing Tool · Web Version",
-      plotly: "Plotly",
-      standalone: "No Backend · Direct API Connection",
-      author: "Author",
-      toggleTheme: "Dark/Light Theme",
-      run: "Run",
-      network: "Network",
-      market: "Market Contract",
-      yt: "YT Contract",
-      underlying: "Underlying Amount",
-      pointsPerDay: "Points / Day / Underlying",
-      multiplier: "Pendle Multiplier",
-      loading: "Fetching and calculating…",
-      symbol: "Symbol",
-      maturity: "Maturity (UTC)",
-      wImplied: "Weighted Implied APY",
-      txnUnique: "Transactions (unique)",
-      weightedImpliedKV: "Weighted Implied APY (Volume-weighted)",
-      buyNowPoints: "Points (Points available now upon purchase)",
-      networkHelp: "Select the blockchain of the market",
-      marketHelp: "Contract address of the Pendle Market, available from the Specs of each market",
-      ytHelp: "Contract address of the YT Token, available from the Specs of each market",
-      underlyingHelp: "The amount of the underlying asset you plan to invest (e.g., kHYPE, USDe, etc.)",
-      pointsHelp: "The number of points earned per underlying asset per day. Please refer to the project's documentation (e.g., Falcon provides 1 point per sUSDe per day)",
-      multiplierHelp: "Pendle’s points multiplier bonus, typically with additional boosts during special events (e.g., Falcon sUSDf has a points multiplier of 36)",
-      chartTitle: (s, n, u) => `${s} on ${n} [${u} underlying coin]`,
-      chartY1: "YT Price", 
-      chartY2: "Points earned if bought at this time until maturity",
-    }
-  };
-
-  let LANG='zh';
-  function t(key,...args){ const v=I18N[LANG][key]; return typeof v==='function' ? (args.length?v(...args):v) : v; }
-  function applyLang(){
-    document.getElementById('title').textContent=t('title');
-    document.getElementById('badge-plotly').textContent=t('plotly');
-    document.getElementById('badge-standalone').textContent=t('standalone');
-    document.querySelector('#xLink span[data-i18n="author"]').textContent=t('author');
-    document.querySelector('[data-i18n="toggleTheme"]').textContent=t('toggleTheme');
-    document.querySelector('[data-i18n="run"]').textContent=t('run');
-    document.getElementById('loadingText').textContent=t('loading');
-    document.querySelectorAll('[data-i18n]').forEach(el=>{
-      const k=el.getAttribute('data-i18n');
-      if(['toggleTheme','run','author'].includes(k)) return;
-      el.textContent=t(k);
-    });
-    document.getElementById('dataSrc').innerHTML=
-      LANG==='zh'?'数据来源：<span class="mono">api-v2.pendle.finance</span> · 仅供研究参考'
-                :'Data source: <span class="mono">api-v2.pendle.finance</span> · For research only';
-    document.getElementById('chartFoot').textContent=t('chartFoot');
-    if (window.__plot_inited) relayoutChartTheme();
-  }
-
-  // ========= 主题 =========
-  function currentTheme(){ return document.documentElement.getAttribute('data-theme') || 'dark'; }
-  function setTheme(theme){
-    document.documentElement.setAttribute('data-theme', theme);
-    relayoutChartTheme();
-  }
-  function toggleTheme(){ setTheme(currentTheme()==='dark'?'light':'dark'); }
-  function relayoutChartTheme(){
-    if (!window.__plot_inited) return;
-    const isDark = currentTheme()==='dark';
-    Plotly.relayout('chart', {
-      'paper_bgcolor': isDark ? '#0b0f16' : '#ffffff',
-      'plot_bgcolor':  isDark ? '#0b0f16' : '#ffffff',
-      'font.color':    isDark ? '#e6edf3' : '#0b1220'
-    });
-    setTimeout(()=>Plotly.Plots.resize('chart'),0);
-  }
-
-  // ========= 常量 & 工具 =========
-  const NETWORK_IDS={arbitrum:'42161',ethereum:'1',mantle:'5000',berachain:'80094',base:'8453',hyperevm:'999'};
-  const NETWORK_PATH={arbitrum:'/42161',ethereum:'/1',mantle:'/5000',berachain:'/80094',base:'/8453',hyperevm:'/999'};
-  const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
-  const fmtPct=(x)=>isFinite(x)?(x*100).toFixed(2)+'%':'-';
-  const fmtNum=(x)=>isFinite(x)?(Math.round((x+Number.EPSILON)*100)/100).toLocaleString():'-';
-  function setLoading(on){ document.getElementById('status').style.display=on?'inline-flex':'none'; document.getElementById('run').disabled=on; }
-  function showError(msg){ document.getElementById('errmsg').textContent=msg||'Unknown error'; document.getElementById('error').style.display='block'; }
-  function hideError(){ document.getElementById('error').style.display='none'; }
-  function parseExpiry(raw){
-    if (raw == null) return new Date(NaN);
-    if (typeof raw === 'number') return new Date(raw > 1e12 ? raw : raw*1000);
-    const s=String(raw).trim();
-    if (/^\d+$/.test(s)){ const n=Number(s); return new Date(n>1e12?n:n*1000); }
-    const iso=/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s) ? s.replace(' ','T') : s;
-    return new Date(iso);
-  }
-  async function fetchJSON(url, params={}){
-    const u=new URL(url); Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));
-    const resp=await fetch(u.toString(),{headers:{'User-Agent':'Mozilla/5.0 Chrome/113 Safari/537.36'}});
-    if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText} @ ${u}\n${await resp.text()}`);
-    return resp.json();
-  }
-  async function getAssetsAll(networkName){ const path=NETWORK_PATH[networkName.toLowerCase()]; return fetchJSON(`https://api-v2.pendle.finance/core/v3${path}/assets/all`); }
-  async function getTransactionsAll(networkName, marketAddr){
-    const id=NETWORK_IDS[networkName.toLowerCase()];
-    const base=`https://api-v2.pendle.finance/core/v4/${id}/transactions`;
-    let results=[], skip=0, resumeToken=null, totalSeen=0;
-    while(true){
-      const params={ market:marketAddr, action:'SWAP_PT,SWAP_PY,SWAP_YT', origin:'PENDLE_MARKET,YT', limit:'1000', minValue:'0' };
-      if (resumeToken) params.resumeToken=resumeToken; else params.skip=String(skip);
-      let data;
-      try{ data=await fetchJSON(base, params); }
-      catch(e){
-        if (String(e).includes('Skip is capped at 5000') && !resumeToken){
-          const probe=await fetchJSON(base, {...params, limit:'1', skip:'4999'});
-          if (probe.resumeToken){ resumeToken=probe.resumeToken; continue; }
-        }
-        throw e;
-      }
-      const page=Array.isArray(data?.results)?data.results:[]; if (page.length===0) break;
-      results.push(...page); totalSeen += page.length;
-      if (data?.resumeToken) resumeToken=data.resumeToken; else if (!resumeToken) skip += 1000;
-      const totalAvail=data?.total??0; if (totalAvail>0 && totalSeen>=totalAvail) break;
-      await sleep(160 + Math.random()*100);
-    }
-    const seen=new Set(), dedup=[]; for (const r of results){ if (!r?.id) continue; if (!seen.has(r.id)){ seen.add(r.id); dedup.push(r); } }
-    return dedup;
-  }
-
-  function compute({transactions, maturity, underlyingAmount, pointsPerDayPerUnderlying, multiplier}){
-    const tTimes=[], implied=[], valuationUSD=[];
-    for (const tx of transactions){
-      const t=new Date(tx.timestamp); if (isNaN(t)) continue;
-      tTimes.push(t);
-      const iA=Number(tx?.impliedApy); implied.push(isFinite(iA)?iA:NaN);
-      const usd=Number(tx?.valuation?.usd ?? tx?.valuation_usd); valuationUSD.push(isFinite(usd)?usd:0);
-    }
-    const totalUSD=valuationUSD.reduce((a,b)=>a+(isFinite(b)?b:0),0);
-    const weightedImplied = totalUSD>0
-      ? implied.reduce((acc,iA,idx)=>acc+(isFinite(iA)&&isFinite(valuationUSD[idx])?iA*valuationUSD[idx]:0),0)/totalUSD
-      : NaN;
-
-    const maturityDate = new Date(maturity);
-    const hoursToMaturity = tTimes.map(t => (maturityDate - t)/3600000);
-
-    const pph = pointsPerDayPerUnderlying/24, mult = multiplier;
-    const ytPrice=[], points=[];
-    for (let i=0;i<tTimes.length;i++){
-      const iA=implied[i], h=hoursToMaturity[i];
-      if (!isFinite(iA) || !isFinite(h)){ ytPrice.push(NaN); points.push(NaN); continue; }
-      const price = Math.pow(1+iA, h/8760) - 1;
-      ytPrice.push(price);
-      points.push((1/price) * h * pph * underlyingAmount * mult);
-    }
-    return { tTimes, ytPrice, points, weightedImplied, maturityDate };
-  }
-
-  function buildFairCurve(weightedImplied, tTimes, maturityDate){
-    const fairX=[], fairY=[];
-    if (!isFinite(weightedImplied) || !tTimes.length) return {fairX, fairY};
-    const txTimesSorted=[...tTimes].sort((a,b)=>a-b);
-    for (const t of txTimesSorted){
-      const hrs=(maturityDate - t)/3600000;
-      const fv = 1 - 1/Math.pow(1+weightedImplied, hrs/8760);
-      fairX.push(t); fairY.push(fv);
-    }
-    let cursor = txTimesSorted.at(-1) || new Date();
-    cursor = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate(), cursor.getUTCHours(),0,0));
-    while (cursor <= maturityDate){
-      const hrs=(maturityDate - cursor)/3600000;
-      const fv = 1 - 1/Math.pow(1+weightedImplied, hrs/8760);
-      fairX.push(new Date(cursor)); fairY.push(fv);
-      cursor = new Date(cursor.getTime()+3600000);
-    }
-    return {fairX, fairY};
-  }
-
-  function plotChart({ tTimes, ytPrice, points, fairX, fairY }, symbol, networkName, underlyingAmount){
-    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
-    const traces = [
-      { x: tTimes, y: ytPrice, mode: 'lines', name: t('chartY1'), yaxis: 'y' },
-      { x: tTimes, y: points, mode: 'lines', name: t('chartY2'), yaxis: 'y2' },
-      { x: fairX, y: fairY, mode: 'lines', name: 'Fair Value Curve of YT', line: { dash: 'dot', width: 3 }, yaxis: 'y' }
-    ];
-
-    const layout = {
-      title: t('chartTitle', symbol, networkName, underlyingAmount),
-      margin:{l:60,r:60,t:60,b:50},
-      legend:{orientation:'h', yanchor:'bottom', y:1.02, xanchor:'right', x:1},
-      xaxis:{ title:t('chartXAxis') },
-      yaxis:{ title:t('chartY1'), side:'left' },
-      yaxis2:{ title:t('chartY2'), overlaying:'y', side:'right' },
-      paper_bgcolor: isDark ? '#0b0f16' : '#ffffff',
-      plot_bgcolor:  isDark ? '#0b0f16' : '#ffffff',
-      font:{ color: isDark ? '#e6edf3' : '#0b1220' }
-    };
-    Plotly.newPlot('chart', traces, layout, {responsive:true});
-    window.__plot_inited = true;
-    setTimeout(()=>Plotly.Plots.resize('chart'),0);
-  }
-
-  // ========= 交互 =========
-  document.getElementById('toggleTheme').addEventListener('click', () => { toggleTheme(); });
-  document.getElementById('lang').addEventListener('change', (e)=>{ LANG=e.target.value; applyLang(); });
-  document.getElementById('run').addEventListener('click', runOnce);
-
-  async function runOnce(){
-    hideError(); setLoading(true);
-    document.getElementById('chartCard').style.display='none';
-    document.getElementById('meta').style.display='none';
-
-    const networkSel = document.getElementById('network').value.trim();
-    const marketAddr = document.getElementById('market_contract').value.trim().toLowerCase();
-    const ytAddr     = document.getElementById('yt_contract').value.trim().toLowerCase();
-    const underlyingAmount = Number(document.getElementById('underlying_amount').value);
-    const pointsPerDay     = Number(document.getElementById('points_per_day').value);
-    const multiplier       = Number(document.getElementById('multiplier_inp').value);
-
-    try{
-      // 资产信息
-      const assetsResp = await getAssetsAll(networkSel);
-      const assets = Array.isArray(assetsResp?.assets)?assetsResp.assets:[];
-      const validYT = assets.find(item =>
-        item && Array.isArray(item.tags) && item.tags.includes('YT') &&
-        String(item.address).toLowerCase() === ytAddr && item.expiry
-      );
-      if (!validYT) throw new Error(I18N[LANG].errNotFound);
-      const symbolText = validYT.symbol || 'YT';
-      const maturityDateObj = parseExpiry(validYT.expiry);
-      if (isNaN(maturityDateObj)) throw new Error(I18N[LANG].errExpiry(validYT.expiry));
-
-      // 交易
-      const txns = await getTransactionsAll(networkSel, marketAddr);
-
-      // 计算
-      const { tTimes, ytPrice, points, weightedImplied, maturityDate } = compute({
-        transactions: txns, maturity: maturityDateObj.toISOString(),
-        underlyingAmount, pointsPerDayPerUnderlying: pointsPerDay, multiplier
-      });
-      const { fairX, fairY } = buildFairCurve(weightedImplied, tTimes, maturityDate);
-
-      // 元信息
-      document.getElementById('symbol').textContent   = symbolText;
-      document.getElementById('maturity').textContent = maturityDateObj.toISOString().replace('T',' ').replace('.000Z','Z');
-      document.getElementById('wImplied').textContent = isFinite(weightedImplied)? fmtPct(weightedImplied) : '-';
-      document.getElementById('netpill').textContent  = networkSel;
-      document.getElementById('kv_txn').textContent   = (new Set(txns.map(x=>x.id)).size || 0).toLocaleString();
-      document.getElementById('kv_wimplied').textContent = isFinite(weightedImplied)? fmtPct(weightedImplied) : '-';
-
-      // “现在买入可获积分”（用最新交易 impliedApy，若缺则用加权 implied）
-      const lastTx = txns.reduce((best,cur)=>!best || new Date(cur.timestamp)>new Date(best.timestamp)?cur:best, null);
-      const iA_now = (lastTx && isFinite(+lastTx.impliedApy)) ? +lastTx.impliedApy : (isFinite(weightedImplied)?weightedImplied:NaN);
-      const hoursToMatNow = (maturityDate - new Date())/3600000;
-      let nowPoints = NaN;
-      if (isFinite(iA_now) && hoursToMatNow>0) {
-        const priceNow = Math.pow(1+iA_now, hoursToMatNow/8760) - 1;
-        const pph = pointsPerDay/24;
-        nowPoints = (1/priceNow) * hoursToMatNow * pph * underlyingAmount * multiplier;
-      } else if (hoursToMatNow<=0) {
-        nowPoints = 0;
-      }
-      document.getElementById('kv_now').textContent = isFinite(nowPoints)? fmtNum(nowPoints) : '-';
-
-      // 显示 & 绘图
-      document.getElementById('meta').style.display='block';
-      document.getElementById('chartCard').style.display='block';
-      plotChart({ tTimes, ytPrice, points, fairX, fairY }, symbolText, networkSel, underlyingAmount);
-
-    }catch(e){
-      showError(String(e?.message||e));
-    }finally{
-      setLoading(false);
-    }
-  }
-
-  // 初始：中文 + 深色
-  applyLang();
-</script>
 </body>
 </html>
