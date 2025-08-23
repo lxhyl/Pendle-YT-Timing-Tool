@@ -1,121 +1,152 @@
-import {getActiveMarkets, type Market} from "@/api/pendle"
-import {chainsArray} from "@/constant/chain"
-import { useEffect, useState } from "react"
+
+import * as React from "react"
+import { Check, ChevronsUpDown } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import { Input } from "./ui/input"
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { getActiveMarkets, type Market } from "@/api/pendle"
 
+// Helper function to format expiry time
+function formatExpiryTime(expiry: string): string {
+    try {
+        const expiryDate = new Date(expiry)
+        const now = new Date()
+        const diffTime = expiryDate.getTime() - now.getTime()
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        
+        // Format date as "20 Nov 2025"
+        const dateStr = expiryDate.toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        })
+        
+        // Add days remaining
+        if (diffDays > 0) {
+            return `${dateStr} (${diffDays} days)`
+        } else if (diffDays === 0) {
+            return `${dateStr} (Today)`
+        } else {
+            return `${dateStr} (Expired)`
+        }
+    } catch (error) {
+        return expiry // Return original string if parsing fails
+    }
+}
 
-export function MarketSelect() {
-    const [selectedChain, setSelectedChain] = useState<string>(chainsArray[0]?.chainId.toString() || "1")
-    const [markets, setMarkets] = useState<Market[]>([])
-    const [selectedMarket, setSelectedMarket] = useState<string>("")
-    const [searchTerm, setSearchTerm] = useState<string>("")
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+export function MarketSelect(props: {selectedChain: string, selectedMarket: Market | null,setSelectedMarket: (market: Market | null) => void}) {
+    const {selectedChain = "1", selectedMarket = null, setSelectedMarket} = props
+    const [open, setOpen] = React.useState(false)
+    const [searchValue, setSearchValue] = React.useState("")
 
-    useEffect(() => {
+    const [markets, setMarkets] = React.useState<Market[]>([])
+    const [isLoading, setIsLoading] = React.useState<boolean>(false)
+
+    React.useEffect(() => {
         setIsLoading(true)
         getActiveMarkets(Number(selectedChain)).then((d) => {
             console.log("markets", d)
             setMarkets(d)
-            setSelectedMarket("") // Reset selected market when chain changes
+            // Auto-select the first market if available and no market is currently selected
+            if (d.length > 0 && selectedMarket === null) {
+                setSelectedMarket(d[0])
+            }
             setIsLoading(false)
         }).catch((error) => {
             console.error("Failed to fetch markets:", error)
             setIsLoading(false)
         })
-    }, [selectedChain])
+    }, [selectedChain, selectedMarket])
 
-    // Filter markets based on search term
-    const filteredMarkets = markets.filter(market =>
-        market.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        market.underlyingAsset.toLowerCase().includes(searchTerm.toLowerCase())
+    const selectedMarketData = markets.find(market => market.address === selectedMarket?.address)
+
+    // Filter markets based on search input
+    const filteredMarkets = markets.filter(market => 
+        searchValue === '' || 
+        market.name.toLowerCase().includes(searchValue.toLowerCase()) || 
+        market.underlyingAsset.toLowerCase().includes(searchValue.toLowerCase())
     )
 
     return (
-        <div className="w-full max-w-md space-y-4">
-            {/* Chain Selector */}
-            <div className="space-y-2">
-                <label className="text-sm font-medium">Chain</label>
-                <Select value={selectedChain} onValueChange={setSelectedChain}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select a chain" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {chainsArray.map((chain) => (
-                            <SelectItem key={chain.chainId} value={chain.chainId.toString()}>
-                                {chain.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {/* Market Selector with Search */}
-            <div className="space-y-2">
-                <label className="text-sm font-medium">Market</label>
-                <Select value={selectedMarket} onValueChange={setSelectedMarket}>
-                    <SelectTrigger disabled={isLoading}>
-                        <SelectValue placeholder={isLoading ? "Loading markets..." : "Select a market"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {/* Search Input */}
-                        <div className="p-2">
-                            <Input
-                                placeholder="Search markets..."
-                                value={searchTerm}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                                className="h-8"
-                            />
-                        </div>
-                        
-                        {/* Market Items */}
-                        {filteredMarkets.length === 0 ? (
-                            <div className="p-2 text-sm text-muted-foreground">
-                                {searchTerm ? "No markets found" : "No markets available"}
-                            </div>
-                        ) : (
-                            filteredMarkets.map((market) => (
-                                <SelectItem key={market.address} value={market.address.toString()}>
-                                    <div className="flex flex-col">
-                                        <span className="font-medium">{market.name}</span>
-                                        <span className="text-xs text-muted-foreground">
-                                            {market.underlyingAsset} • Expires: {market.expiry}
-                                        </span>
-                                    </div>
-                                </SelectItem>
-                            ))
-                        )}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {/* Selected Market Info */}
-            {selectedMarket && (
-                <div className="p-3 bg-muted rounded-md">
-                    <h4 className="font-medium text-sm">Selected Market:</h4>
-                    {(() => {
-                        const market = markets.find(m => m.address.toString() === selectedMarket)
-                        if (!market) return null
-                        
-                        return (
-                            <div className="mt-2 space-y-1 text-sm">
-                                <div><strong>Name:</strong> {market.name}</div>
-                                <div><strong>Underlying:</strong> {market.underlyingAsset}</div>
-                                <div><strong>Expiry:</strong> {market.expiry}</div>
-                                <div><strong>PT:</strong> {market.pt}</div>
-                                <div><strong>YT:</strong> {market.yt}</div>
-                                <div><strong>SY:</strong> {market.sy}</div>
-                            </div>
-                        )
-                    })()}
-                </div>
-            )}
+        <div className="w-78">
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-full justify-between"
+                        disabled={isLoading}
+                    >
+                        {isLoading 
+                            ? "Loading markets..." 
+                            : selectedMarketData 
+                                ? <div className="flex items-center justify-between w-full">
+                                    <span className="font-medium">{selectedMarketData.name}</span>
+                                    <span className="text-xs text-muted-foreground ml-2">
+                                        {formatExpiryTime(selectedMarketData.expiry)}
+                                    </span>
+                                </div>
+                                : "Select a market..."
+                        }
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-66 p-0">
+                    <Command shouldFilter={false}>
+                        <CommandInput 
+                            placeholder="Search markets..." 
+                            className="h-9"
+                            value={searchValue}
+                            onValueChange={setSearchValue}
+                        />
+                        <CommandList>
+                            <CommandEmpty>No markets found.</CommandEmpty>
+                            <CommandGroup>
+                                {filteredMarkets.map((market) => (
+                                    <CommandItem
+                                        key={market.address}
+                                        value={market.address.toString()}
+                                        onSelect={() => {
+                                            setSelectedMarket(market)
+                                            setOpen(false)
+                                            setSearchValue("") // Clear search when selecting
+                                        }}
+                                    >
+                                        <div className="flex flex-col w-full">
+                                            <div className="flex items-center justify-between w-full">
+                                                <span className="font-medium">{market.name}</span>
+                                                <Check
+                                                    className={cn(
+                                                        "ml-auto h-4 w-4",
+                                                        selectedMarket?.address === market.address ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                            </div>
+                                            <span className="text-xs text-muted-foreground">
+                                                {formatExpiryTime(market.expiry)}
+                                            </span>
+                                        </div>
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
         </div>
     )
 }

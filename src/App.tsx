@@ -1,4 +1,4 @@
-import { From } from './components/From'
+import { From } from './components/Main'
 import Header from './components/Header'
 import { ThemeProvider } from "@/components/ThemeProvider"
 
