@@ -1,4 +1,4 @@
-import { cachedApiRequest, ApiError } from './utils'
+import { ApiError } from './utils'
 import type { RequestConfig } from './utils'
 
 
@@ -68,8 +68,11 @@ export async function getActiveMarkets(
 ): Promise<Market[]> {
   try {
     const url = `${BASE_URL}/v1/${chainId}/markets/active`
-    const cacheKey = `markets_${chainId}`
-    const data = await cachedApiRequest<{markets:Market[]}>(url, cacheKey, config)
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
     return data.markets
   } catch (error) {
     console.error('Failed to get active markets:', error)
@@ -93,23 +96,7 @@ export async function getTransactionsAll(
         throw new Error(`Unsupported network`);
     }
     
-    // Create cache key
-    const cacheKey = `transactions_${chainId}_${marketAddr}`;
-    
-    // Try to get from cache first
-    try {
-        const { apiCache } = await import('./utils');
-        const cachedData = apiCache.get<Transaction[]>(cacheKey);
-        if (cachedData && Array.isArray(cachedData) && cachedData.length > 0) {
-            console.log(`✅ Cache hit: Using ${cachedData.length} cached transactions for ${marketAddr}`);
-            return cachedData;
-        }
-        console.log(`❌ Cache miss: No cached data found for ${marketAddr}, fetching from API...`);
-        
 
-    } catch (error) {
-        console.log('Cache check failed, fetching fresh data...');
-    }
     
     const base = `${BASE_URL}/v4/${chainId}/transactions`;
     let results: Transaction[] = [];
@@ -172,15 +159,6 @@ export async function getTransactionsAll(
     }
     
     console.log(`🔄 Deduplication: ${results.length} → ${dedup.length} unique transactions`);
-    
-    // Store the final deduplicated result in cache
-    try {
-        const { apiCache } = await import('./utils');
-        apiCache.set(cacheKey, dedup);
-        console.log(`💾 Cache stored: ${dedup.length} transactions cached for ${marketAddr} (expires in 1 hour)`);
-    } catch (error) {
-        console.log('Failed to cache transactions data:', error);
-    }
     
     return dedup;
 }

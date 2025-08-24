@@ -62,8 +62,8 @@ export function MarketSelect(props: {selectedChain: string, selectedMarket: Mark
         getActiveMarkets(Number(selectedChain)).then((d) => {
             console.log("markets", d)
             setMarkets(d)
-            // Auto-select the first market if available and no market is currently selected
-            if (d.length > 0 && selectedMarket === null) {
+            // Auto-select the first market when chain changes or when no market is selected
+            if (d.length > 0) {
                 setSelectedMarket(d[0])
             }
             setIsLoading(false)
@@ -71,7 +71,7 @@ export function MarketSelect(props: {selectedChain: string, selectedMarket: Mark
             console.error("Failed to fetch markets:", error)
             setIsLoading(false)
         })
-    }, [selectedChain, selectedMarket])
+    }, [selectedChain]) // Add selectedMarket back to dependencies
 
     const selectedMarketData = markets.find(market => market.address === selectedMarket?.address)
 

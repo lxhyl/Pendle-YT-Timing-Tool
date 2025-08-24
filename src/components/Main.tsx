@@ -86,12 +86,6 @@ export function From() {
         }
     }, [underlyingAmount, pointsPerDay, pendleMultiplier, selectedChain]);
 
-    // Auto-select first market when chain changes (for initial load)
-    useEffect(() => {
-        // This will trigger MarketSelect to auto-select the first market
-        // The MarketSelect component handles the auto-selection logic
-    }, [selectedChain]);
-
     return (  
         <div className='space-y-8'>
             <div className='bg-card card-elevated rounded-lg p-6'>
