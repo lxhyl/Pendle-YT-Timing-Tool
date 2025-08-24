@@ -37,7 +37,7 @@ export function Chart({ data, marketName, underlyingAmount, chainName }: ChartPr
 
                 // Format data for Recharts and sort by time
             const sortedData = data
-                .map((item, index) => ({
+                .map((item) => ({
                     time: new Date(item.time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                     ytPrice: item.ytPrice,
                     points: item.points,

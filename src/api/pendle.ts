@@ -1,16 +1,6 @@
-import { apiRequest, cachedApiRequest, ApiError } from './utils'
+import { cachedApiRequest, ApiError } from './utils'
 import type { RequestConfig } from './utils'
 
-// Network ID mapping
-const NETWORK_IDS: { [key: string]: number } = {
-    'ethereum': 1,
-    'arbitrum': 42161,
-    'optimism': 10,
-    'bsc': 56,
-    'mantle': 5000,
-    'base': 8453,
-    'hyperevm': 84532
-}
 
 // Transaction data type
 export interface Transaction {
