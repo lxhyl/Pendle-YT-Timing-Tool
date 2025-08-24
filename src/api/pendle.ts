@@ -1,4 +1,4 @@
-import { apiRequest, ApiError } from './utils'
+import { apiRequest, cachedApiRequest, ApiError } from './utils'
 import type { RequestConfig } from './utils'
 
 // Network ID mapping
@@ -78,7 +78,8 @@ export async function getActiveMarkets(
 ): Promise<Market[]> {
   try {
     const url = `${BASE_URL}/v1/${chainId}/markets/active`
-    const data = await apiRequest<{markets:Market[]}>(url, config)
+    const cacheKey = `markets_${chainId}`
+    const data = await cachedApiRequest<{markets:Market[]}>(url, cacheKey, config)
     return data.markets
   } catch (error) {
     console.error('Failed to get active markets:', error)
@@ -102,12 +103,32 @@ export async function getTransactionsAll(
         throw new Error(`Unsupported network`);
     }
     
+    // Create cache key
+    const cacheKey = `transactions_${chainId}_${marketAddr}`;
+    
+    // Try to get from cache first
+    try {
+        const { apiCache } = await import('./utils');
+        const cachedData = apiCache.get<Transaction[]>(cacheKey);
+        if (cachedData && Array.isArray(cachedData) && cachedData.length > 0) {
+            console.log(`✅ Cache hit: Using ${cachedData.length} cached transactions for ${marketAddr}`);
+            return cachedData;
+        }
+        console.log(`❌ Cache miss: No cached data found for ${marketAddr}, fetching from API...`);
+        
+
+    } catch (error) {
+        console.log('Cache check failed, fetching fresh data...');
+    }
+    
     const base = `${BASE_URL}/v4/${chainId}/transactions`;
     let results: Transaction[] = [];
     let skip = 0;
     let resumeToken: string | null = null;
     let pages = 0;
 
+    console.log(`📊 Fetching transactions from API (max ${MAX_PAGES} pages)...`);
+    
     while (pages < MAX_PAGES) {
         const params: Record<string, string> = { 
             market: marketAddr, 
@@ -136,6 +157,8 @@ export async function getTransactionsAll(
         results.push(...page);
 
         pages += 1;
+        console.log(`📄 Page ${pages}: Got ${page.length} transactions (total: ${results.length})`);
+        
         if (data?.resumeToken) {
             resumeToken = data.resumeToken;
         } else if (!resumeToken) {
@@ -143,7 +166,7 @@ export async function getTransactionsAll(
         }
 
         if (pages >= MAX_PAGES) {
-            console.warn('Truncated transactions due to page cap');
+            console.warn('⚠️ Truncated transactions due to page cap');
             break;
         }
         await sleep(160 + Math.random() * 100);
@@ -157,5 +180,17 @@ export async function getTransactionsAll(
             dedup.push(r); 
         } 
     }
+    
+    console.log(`🔄 Deduplication: ${results.length} → ${dedup.length} unique transactions`);
+    
+    // Store the final deduplicated result in cache
+    try {
+        const { apiCache } = await import('./utils');
+        apiCache.set(cacheKey, dedup);
+        console.log(`💾 Cache stored: ${dedup.length} transactions cached for ${marketAddr} (expires in 1 hour)`);
+    } catch (error) {
+        console.log('Failed to cache transactions data:', error);
+    }
+    
     return dedup;
 }

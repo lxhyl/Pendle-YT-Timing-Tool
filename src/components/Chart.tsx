@@ -8,6 +8,7 @@ import {
     Legend,
     ResponsiveContainer
 } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 interface ChartData {
     time: string;
@@ -24,10 +25,12 @@ interface ChartProps {
 }
 
 export function Chart({ data, marketName, underlyingAmount, chainName }: ChartProps) {
+    const { t } = useTranslation();
+    
     if (!data || data.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-muted-foreground">
-                No data available for chart
+                {t('chart.noDataAvailable')}
             </div>
         );
     }
@@ -48,9 +51,9 @@ export function Chart({ data, marketName, underlyingAmount, chainName }: ChartPr
             const chartData = sortedData.filter((_, index) => index % step === 0);
 
     return (
-        <div className="w-full bg-card border border-border rounded-lg p-6">
+        <div className="w-full bg-card card-elevated rounded-lg p-6">
             <h3 className="text-lg font-semibold text-center mb-6 text-foreground">
-                {marketName} on {chainName} [{underlyingAmount} underlying coin]
+                {marketName} on {chainName} [{underlyingAmount} {t('chart.underlyingCoin')}]
             </h3>
             
             <ResponsiveContainer width="100%" height={400}>
@@ -69,7 +72,6 @@ export function Chart({ data, marketName, underlyingAmount, chainName }: ChartPr
                     <YAxis 
                         yAxisId="left"
                         orientation="left"
-                        label={{ value: 'YT Price', angle: -90, position: 'insideLeft', fill: '#888888' }}
                         stroke="#888888"
                         fontSize={12}
                         tick={{ fill: '#888888' }}
@@ -81,7 +83,6 @@ export function Chart({ data, marketName, underlyingAmount, chainName }: ChartPr
                     <YAxis 
                         yAxisId="right"
                         orientation="right"
-                        label={{ value: 'Points earned if bought at this time until maturity', angle: 90, position: 'insideRight', fill: '#888888' }}
                         stroke="#888888"
                         fontSize={12}
                         tick={{ fill: '#888888' }}
@@ -105,7 +106,7 @@ export function Chart({ data, marketName, underlyingAmount, chainName }: ChartPr
                         }}
                         labelStyle={{ color: '#ffffff' }}
                         formatter={(value: any, name: string) => {
-                            if (name === 'Points earned if bought at this time until maturity') {
+                            if (name === t('chart.pointsEarned')) {
                                 const numValue = Number(value);
                                 if (numValue >= 1000000) {
                                     return [`${(numValue / 1000000).toFixed(2)}M`, name];
@@ -114,7 +115,7 @@ export function Chart({ data, marketName, underlyingAmount, chainName }: ChartPr
                                 }
                                 return [value, name];
                             }
-                            if (name === 'YT Price' || name === 'Fair Value Curve of YT') {
+                            if (name === t('chart.ytPrice') || name === t('chart.fairValueCurve')) {
                                 const numValue = Number(value);
                                 return [numValue.toFixed(4), name];
                             }
@@ -137,7 +138,7 @@ export function Chart({ data, marketName, underlyingAmount, chainName }: ChartPr
                         stroke="#3b82f6"
                         strokeWidth={1.5}
                         dot={false}
-                        name="YT Price"
+                        name={t('chart.ytPrice')}
                     />
                     
                     {/* Points Line - Orange */}
@@ -148,7 +149,7 @@ export function Chart({ data, marketName, underlyingAmount, chainName }: ChartPr
                         stroke="#f97316"
                         strokeWidth={1.5}
                         dot={false}
-                        name="Points earned if bought at this time until maturity"
+                        name={t('chart.pointsEarned')}
                     />
                     
                     {/* Fair Value Curve - Green Dotted */}
@@ -160,13 +161,13 @@ export function Chart({ data, marketName, underlyingAmount, chainName }: ChartPr
                         strokeWidth={1.5}
                         strokeDasharray="5 5"
                         dot={false}
-                        name="Fair Value Curve of YT"
+                        name={t('chart.fairValueCurve')}
                     />
                 </LineChart>
             </ResponsiveContainer>
             
             <div className="mt-4 text-sm text-muted-foreground text-center">
-                在 yt 价格低于公平价值曲线时购买以最大化积分
+                {t('chart.maximizePointsHint')}
             </div>
         </div>
     );

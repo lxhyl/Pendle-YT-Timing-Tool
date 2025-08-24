@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { getActiveMarkets, type Market } from "@/api/pendle"
+import { useTranslation } from "react-i18next"
 
 // Helper function to format expiry time
 function formatExpiryTime(expiry: string): string {
@@ -48,6 +49,7 @@ function formatExpiryTime(expiry: string): string {
 }
 
 export function MarketSelect(props: {selectedChain: string, selectedMarket: Market | null,setSelectedMarket: (market: Market | null) => void}) {
+    const { t } = useTranslation();
     const {selectedChain = "1", selectedMarket = null, setSelectedMarket} = props
     const [open, setOpen] = React.useState(false)
     const [searchValue, setSearchValue] = React.useState("")
@@ -88,11 +90,11 @@ export function MarketSelect(props: {selectedChain: string, selectedMarket: Mark
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
-                        className="w-full justify-between"
+                        className="w-full justify-between input-enhanced"
                         disabled={isLoading}
                     >
-                        {isLoading 
-                            ? "Loading markets..." 
+                                                {isLoading 
+                            ? t('marketSelect.loadingMarkets')
                             : selectedMarketData 
                                 ? <div className="flex items-center justify-between w-full">
                                     <span className="font-medium">{selectedMarketData.name}</span>
@@ -100,21 +102,21 @@ export function MarketSelect(props: {selectedChain: string, selectedMarket: Mark
                                         {formatExpiryTime(selectedMarketData.expiry)}
                                     </span>
                                 </div>
-                                : "Select a market..."
-                        }
+                                : t('marketSelect.selectMarket')
+                            }
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-66 p-0">
                     <Command shouldFilter={false}>
                         <CommandInput 
-                            placeholder="Search markets..." 
+                            placeholder={t('marketSelect.searchMarkets')}
                             className="h-9"
                             value={searchValue}
                             onValueChange={setSearchValue}
                         />
                         <CommandList>
-                            <CommandEmpty>No markets found.</CommandEmpty>
+                            <CommandEmpty>{t('marketSelect.noMarketsFound')}</CommandEmpty>
                             <CommandGroup>
                                 {filteredMarkets.map((market) => (
                                     <CommandItem
